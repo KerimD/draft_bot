@@ -6,7 +6,6 @@ client = discord.Client()
 
 # Global Variables
 COMMAND_PREFIX = '!'
-DRAFT_GUILD_ID = 709638020525064252
 DRAFT_CHANNEL_ID = 709638103060447314
 COMMANDS = {
     "!help": help_msg,
@@ -31,7 +30,7 @@ async def on_message(message):
     if not message.author.dm_channel:
         await message.author.create_dm()
 
-    content = (message.content.strip()).split()
+    content = (message.content.strip().lower()).split()
 
     if content[0] in COMMANDS.keys():
         await COMMANDS[content[0]](content[1:], message.author)

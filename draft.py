@@ -1,10 +1,11 @@
-import discord
 import uuid
+import discord
 
 class Captain:
-    def __init__(self, user: discord.member.Member):
+    def __init__(self, user: discord.User):
         self.id = user.id
         self.name = user.name
+        self.dm_channel = user.dm_channel
         self.picks = [None, None, None]
         self.bans = [None, None]
 
@@ -15,9 +16,7 @@ class Captain:
         self.bans[ban_n] = ban
 
 class Draft:
-    def __init__(self,
-                 user1: discord.member.Member,
-                 user2: discord.member.Member = None) -> None:
+    def __init__(self, user1: discord.User, user2: discord.User = None) -> None:
 
         self.id = str(uuid.uuid1())[:6]
 
@@ -33,7 +32,7 @@ class Draft:
         if user2:
             self.table.add_field(name = '**' + user2.name + '**', value = empty_fields)
 
-    def add_captain(self, user: discord.member.Member) -> None:
+    def add_captain(self, user: discord.User) -> None:
         self.captain2 = Captain(user)
         self.table.add_field(
             name = '**' + user.name + '**',
