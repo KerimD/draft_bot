@@ -1,15 +1,15 @@
-import copy
 import discord
 
 from draft import Draft
+from helper import init_draft
 
 # Global Variables
 SESSIONS = {}
 CAPTAINS = {}
 
 BOT_ID = 709635454252613643
-DRAFT_GUILD_ID = 709638020525064252
-DRAFT_CHANNEL_ID = 709638103060447314
+DRAFT_GUILD_ID = [709638020525064252]
+DRAFT_CHANNEL_ID = [709638103060447314, 710076783227174973]
 
 async def help_msg(args, author):
     await author.dm_channel.send(
@@ -81,10 +81,7 @@ async def join_draft(args, author):
     CAPTAINS[author.id] = draft.id
     draft.add_captain(author)
 
-    tables = format_tables(draft.table)
-
-    await draft.captain1.dm_channel.send(embed = tables[0])
-    await draft.captain2.dm_channel.send(embed = tables[1])
+    await init_draft(draft)
 
 async def pick_champ(args, author):
     print(args, author)
@@ -144,27 +141,3 @@ async def clear_dms(draft):
                         await message.delete()
             else:
                 await message.delete()
-
-def format_tables(table):
-    tables = [copy.deepcopy(table), copy.deepcopy(table)]
-
-    # format table 1
-    tables[0].set_field_at(
-        index = 1,
-        name = '**You**',
-        value = table.fields[1].value
-    )
-
-    # format table 2
-    tables[1].set_field_at(
-        index = 1,
-        name = '**You**',
-        value = table.fields[2].value
-    )
-    tables[1].set_field_at(
-        index = 2,
-        name = table.fields[1].name,
-        value = table.fields[1].value
-    )
-
-    return tables

@@ -6,7 +6,7 @@ client = discord.Client()
 
 # Global Variables
 COMMAND_PREFIX = '!'
-DRAFT_CHANNEL_ID = 709638103060447314
+DRAFT_CHANNEL_IDS = [709638103060447314, 710076783227174973]
 COMMANDS = {
     "!help": help_msg,
     "!draft": start_draft,
@@ -18,6 +18,23 @@ COMMANDS = {
 
 @client.event
 async def on_ready():
+
+    # clean up draft channels
+    messages = []
+
+    for channel_id in DRAFT_CHANNEL_IDS:
+        channel = client.get_channel(channel_id)
+
+        async for message in channel.history():
+            if message.author.id == BOT_ID:
+                if message.embeds:
+                    if message.embeds[0].color.value == 16753152:
+                        messages.append(message)
+            else:
+                messages.append(message)
+
+        await channel.delete_messages(messages)
+
     print('Bot Online')
 
 @client.event
@@ -57,7 +74,7 @@ async def is_valid_message(message) -> bool:
     if type(message.channel) is discord.DMChannel:
         return True
 
-    if message.channel.id == DRAFT_CHANNEL_ID:
+    if message.channel.id in DRAFT_CHANNEL_IDS:
         await message.delete()
         return True
     else:
