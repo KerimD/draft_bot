@@ -1,6 +1,6 @@
 import discord
 
-from draft import Draft
+from draft import Draft, DraftState
 from helper import init_draft
 
 # Global Variables
@@ -83,12 +83,60 @@ async def join_draft(args, author, client):
     await init_draft(draft, client)
 
 async def pick_champ(args, author, client):
-    print(args, author, client)
-    pass
+    channel = author.dm_channel
+
+    if author.id not in CAPTAINS:
+        await channel.send(
+            'You are not in a draft, start a draft with `!draft`'
+        )
+        return
+
+    draft = SESSIONS[CAPTAINS[author.id]]
+
+    if not draft.captain2:
+        await channel.send(
+            'Another captain needs to join the draft, send them the draft id\t>>>\t`'
+            + draft.id + '`'
+        )
+        return
+
+    if not args:
+        await channel.send(
+            'You did not specify a champ, try `!pick [champ]`'
+        )
+        return
+
+    await channel.send(
+        draft.pick(author, ' '.join(args))
+    )
 
 async def ban_champ(args, author, client):
-    print(args, author, client)
-    pass
+    channel = author.dm_channel
+
+    if author.id not in CAPTAINS:
+        await channel.send(
+            'You are not in a draft, start a draft with `!draft`'
+        )
+        return
+
+    draft = SESSIONS[CAPTAINS[author.id]]
+
+    if not draft.captain2:
+        await channel.send(
+            'Another captain needs to join the draft, send them the draft id\t>>>\t`'
+            + draft.id + '`'
+        )
+        return
+
+    if not args:
+        await channel.send(
+            'You did not specify a champ, try `!ban [champ]`'
+        )
+        return
+
+    await channel.send(
+        draft.ban(author, ' '.join(args))
+    )
 
 async def exit_draft(args, author, client):
     channel = author.dm_channel
