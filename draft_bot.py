@@ -40,7 +40,6 @@ async def on_message(message):
             content[0] + ' is not recognized as a command, try `!help`.'
         )
 
-
 @client.event
 async def on_member_join(member):
     if member.dm_channel:
