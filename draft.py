@@ -1,4 +1,5 @@
 import uuid
+import enum
 import discord
 
 from errors import *
@@ -34,7 +35,7 @@ CHAMP_ALIAS_DICT = {
 
 unique_ids = []
 
-class DraftState(Enum):
+class DraftState(enum.Enum):
     FIRST_BAN = 0
     FIRST_PICK = 1
     SECOND_PICK = 2
@@ -46,6 +47,7 @@ class Draft:
     def __init__(self, user1: discord.User, user2: discord.User = None) -> None:
 
         # regenerate id until unique
+        self.id = str(uuid.uuid1())[:6]
         while self.id in unique_ids:
             self.id = str(uuid.uuid1())[:6]
         unique_ids.append(self.id)
@@ -78,40 +80,36 @@ class Draft:
             value = '----\n----\n----\n\n----\n----'
         )
 
-    def pick(self, author: discord.User, champ: str) -> str:
+    async def pick(self, author: discord.User, champ: str) -> None:
+        channel = author.dm_channel
+
         if champ in CHAMP_ALIAS_DICT:
             champ = CHAMP_ALIAS_DICT[champ]
 
         if champ not in CHAMP_LIST:
-            raise InvalidChampion(champ + ' is not a valid champ.')
+            await channel.send(champ + ' is not a valid champ.')
+            return
 
-        switch (self.state) {
-            case 1:
-                pass
-            case 2:
-                pass
-            case 4:
-                pass
-            default:
-                raise WrongPhase(
-                    'You are not currently picking, try `!ban [champ]`'
-                )
-        }
+        if author.id == self.captain1.id:
+            captain = self.captain1
+            enemy_captain == self.captain2
+        else:
+            captain = self.captain2
+            enemy_captain == self.captain1
 
-    def ban(self, author: discord.User, champ: str) -> None:
+    async def ban(self, author: discord.User, champ: str) -> None:
+        channel = author.dm_channel
+
         if champ in CHAMP_ALIAS_DICT:
             champ = CHAMP_ALIAS_DICT[champ]
 
         if champ not in CHAMP_LIST:
-            raise InvalidChampion(champ + ' is not a valid champ.')
+            await channel.send(champ + ' is not a valid champ.')
+            return
 
-        switch (self.state) {
-            case 0:
-            pass
-            case 3:
-                pass
-            default:
-                raise WrongPhase(
-                    'You are not currently banning, try `!pick [champ]`'
-                )
-        }
+        if author.id == self.captain1.id:
+            captain = self.captain1
+            enemy_captain == self.captain2
+        else:
+            captain = self.captain2
+            enemy_captain == self.captain1

@@ -106,9 +106,15 @@ async def pick_champ(args, author, client):
         )
         return
 
-    await channel.send(
-        draft.pick(author, ' '.join(args))
-    )
+    if draft.state != DraftState.FIRST_PICK and \
+       draft.state != DraftState.SECOND_PICK and \
+       draft.state != DraftState.THIRD_PICK:
+        await channel.send(
+            'You are not currently picking, try `!ban [champ]`'
+        )
+        return
+
+    await draft.pick(author, ' '.join(args))
 
 async def ban_champ(args, author, client):
     channel = author.dm_channel
@@ -134,9 +140,14 @@ async def ban_champ(args, author, client):
         )
         return
 
-    await channel.send(
-        draft.ban(author, ' '.join(args))
-    )
+    if draft.state != DraftState.FIRST_BAN and \
+       draft.state != DraftState.SECOND_BAN:
+        await channel.send(
+            'You are not currently banning, try `!pick [champ]`'
+        )
+        return
+
+    await draft.ban(author, ' '.join(args))
 
 async def exit_draft(args, author, client):
     channel = author.dm_channel
