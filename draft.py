@@ -2,8 +2,6 @@ import uuid
 import enum
 import discord
 
-from errors import *
-
 class Captain:
     def __init__(self, user: discord.User):
         self.id = user.id
