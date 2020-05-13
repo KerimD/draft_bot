@@ -9,9 +9,8 @@ CAPTAINS = {}
 
 BOT_ID = 709635454252613643
 DRAFT_GUILD_ID = [709638020525064252]
-DRAFT_CHANNEL_ID = [709638103060447314, 710076783227174973]
 
-async def help_msg(args, author):
+async def help_msg(args, author, client):
     await author.dm_channel.send(
         "`!help` : pull up this very dialog\n" \
         "`!draft` : start a draft\n" \
@@ -21,7 +20,7 @@ async def help_msg(args, author):
         "`!exit` : exit the current draft you are in"
     )
 
-async def start_draft(args, author):
+async def start_draft(args, author, client):
     channel = author.dm_channel
 
     if args:
@@ -44,7 +43,7 @@ async def start_draft(args, author):
         'Share **Draft ID** with Opposing Captain\t>>>\t`' + draft.id + '`'
     )
 
-async def join_draft(args, author):
+async def join_draft(args, author, client):
     channel = author.dm_channel
 
     # if author.id in CAPTAINS:
@@ -81,17 +80,17 @@ async def join_draft(args, author):
     CAPTAINS[author.id] = draft.id
     draft.add_captain(author)
 
-    await init_draft(draft)
+    await init_draft(draft, client)
 
-async def pick_champ(args, author):
-    print(args, author)
+async def pick_champ(args, author, client):
+    print(args, author, client)
     pass
 
-async def ban_champ(args, author):
-    print(args, author)
+async def ban_champ(args, author, client):
+    print(args, author, client)
     pass
 
-async def exit_draft(args, author):
+async def exit_draft(args, author, client):
     channel = author.dm_channel
 
     if args:

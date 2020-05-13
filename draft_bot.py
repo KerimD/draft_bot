@@ -49,8 +49,8 @@ async def on_message(message):
 
     content = (message.content.strip().lower()).split()
 
-    if content[0] in COMMANDS.keys():
-        await COMMANDS[content[0]](content[1:], message.author)
+    if content[0] in COMMANDS:
+        await COMMANDS[content[0]](content[1:], message.author, client)
     else:
         await message.author.dm_channel.send(
             content[0] + ' is not recognized as a command, try `!help`.'

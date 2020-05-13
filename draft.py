@@ -19,6 +19,7 @@ class Draft:
     def __init__(self, user1: discord.User, user2: discord.User = None) -> None:
 
         self.id = str(uuid.uuid1())[:6]
+        self.message = None
 
         # init captains
         self.captain1 = Captain(user1)
@@ -28,9 +29,15 @@ class Draft:
         empty_fields = '----\n----\n----\n\n----\n----'
         self.table = discord.Embed(color = 16753152)
         self.table.add_field(name = 'Captains', value = 'Picks\n\n\n\nBans')
-        self.table.add_field(name = '**' + user1.name + '**', value = empty_fields)
+        self.table.add_field(
+            name = '**' + user1.name + '**',
+            value = empty_fields
+        )
         if user2:
-            self.table.add_field(name = '**' + user2.name + '**', value = empty_fields)
+            self.table.add_field(
+                name = '**' + user2.name + '**',
+                value = empty_fields
+            )
 
     def add_captain(self, user: discord.User) -> None:
         self.captain2 = Captain(user)
