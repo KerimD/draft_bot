@@ -7,6 +7,7 @@ client = discord.Client()
 # Global Variables
 COMMAND_PREFIX = '!'
 DRAFT_CHANNEL_IDS = [709638103060447314, 710076783227174973]
+BOT_ID = 709635454252613643
 COMMANDS = {
     "!help": help_msg,
     "!draft": start_draft,

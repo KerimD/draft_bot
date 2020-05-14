@@ -1,13 +1,12 @@
 import discord
 
 from draft import Draft, DraftState
-from helper import init_draft
+from helper import init_draft, format_tables, clear_dms, update_draft_channel
 
 # Global Variables
 SESSIONS = {}
 CAPTAINS = {}
 
-BOT_ID = 709635454252613643
 DRAFT_GUILD_ID = [709638020525064252]
 
 async def help_msg(args, author, client):
@@ -114,7 +113,41 @@ async def pick_champ(args, author, client):
         )
         return
 
-    await draft.pick(author, ' '.join(args))
+    if not await draft.pick(author, ' '.join(args)):
+        return
+
+    if draft.state == DraftState.COMPLETE:
+        draft.table.color = 3210243
+
+    tables = format_tables(draft.table)
+    await clear_dms(draft)
+
+    await draft.captain1.dm_channel.send(
+        embed = tables[0]
+    )
+    await draft.captain2.dm_channel.send(
+        embed = tables[1]
+    )
+
+    await update_draft_channel(draft, client)
+
+    if draft.state == DraftState.COMPLETE:
+        exit_draft([], author, client)
+    else:
+        if draft.state == DraftState.SECOND_PICK:
+            await draft.captain1.dm_channel.send(
+                'Pick phase, please **pick** with `!pick [champ]`'
+            )
+            await draft.captain2.dm_channel.send(
+                'Pick phase, please **pick** with `!pick [champ]`'
+            )
+        else:
+            await draft.captain1.dm_channel.send(
+                'Ban phase, please **ban** with `!ban [champ]`'
+            )
+            await draft.captain2.dm_channel.send(
+                'Ban phase, please **ban** with `!ban [champ]`'
+            )
 
 async def ban_champ(args, author, client):
     channel = author.dm_channel
@@ -147,7 +180,27 @@ async def ban_champ(args, author, client):
         )
         return
 
-    await draft.ban(author, ' '.join(args))
+    if not await draft.ban(author, ' '.join(args)):
+        return
+
+    tables = format_tables(draft.table)
+    await clear_dms(draft)
+
+    await draft.captain1.dm_channel.send(
+        embed = tables[0]
+    )
+    await draft.captain2.dm_channel.send(
+        embed = tables[1]
+    )
+
+    await update_draft_channel(draft, client)
+
+    await draft.captain1.dm_channel.send(
+        'Pick phase, please **pick** with `!pick [champ]`'
+    )
+    await draft.captain2.dm_channel.send(
+        'Pick phase, please **pick** with `!pick [champ]`'
+    )
 
 async def exit_draft(args, author, client):
     channel = author.dm_channel
@@ -181,21 +234,3 @@ async def exit_draft(args, author, client):
         del CAPTAINS[draft.captain2.id]
 
     del SESSIONS[draft_id]
-
-async def clear_dms(draft):
-    async for message in draft.captain1.dm_channel.history():
-        if message.author.id == BOT_ID:
-            if message.embeds:
-                if message.embeds[0].color.value == 16753152:
-                    await message.delete()
-            else:
-                await message.delete()
-
-    if draft.captain2:
-        async for message in draft.captain2.dm_channel.history():
-            if message.author.id == BOT_ID:
-                if message.embeds:
-                    if message.embeds[0].color.value == 16753152:
-                        await message.delete()
-            else:
-                await message.delete()

@@ -2,6 +2,8 @@ import uuid
 import enum
 import discord
 
+from helper import clear_dm
+
 class Captain:
     def __init__(self, user: discord.User):
         self.id = user.id
@@ -10,10 +12,10 @@ class Captain:
         self.picks = [None, None, None]
         self.bans = [None, None]
 
-    def pick(self, pick, pick_n):
+    def pick(self, pick: str, pick_n: int) -> None:
         self.picks[pick_n] = pick
-    
-    def ban(self, ban, ban_n):
+
+    def ban(self, ban: str, ban_n: int) -> None:
         self.bans[ban_n] = ban
 
 CHAMP_LIST = [
@@ -78,7 +80,48 @@ class Draft:
             value = '----\n----\n----\n\n----\n----'
         )
 
-    async def pick(self, author: discord.User, champ: str) -> None:
+    def advance_state(self) -> None:
+        if self.state == DraftState.FIRST_BAN:
+            self.state = DraftState.FIRST_PICK
+        elif self.state == DraftState.FIRST_PICK:
+            self.state = DraftState.SECOND_PICK
+        elif self.state == DraftState.SECOND_PICK:
+            self.state = DraftState.SECOND_BAN
+        elif self.state == DraftState.SECOND_BAN:
+            self.state = DraftState.THIRD_PICK
+        elif self.state == DraftState.THIRD_PICK:
+            self.state = DraftState.COMPLETE
+
+    def update_table(self, captain: Captain, champ: str) -> None:
+        index = 1 if captain == self.captain1 else 2
+
+        name = self.table.fields[index].name
+        value = self.table.fields[index].value
+
+        picks = []
+        bans = []
+
+        for pick in captain.picks:
+            if pick:
+                picks.append(pick)
+            else:
+                picks.append('----')
+        picks = '\n'.join(picks)
+
+        for ban in captain.bans:
+            if ban:
+                bans.append(ban)
+            else:
+                bans.append('----')
+        bans = '\n'.join(bans)
+
+        self.table.set_field_at(
+            index = index,
+            name = name,
+            value = '\n\n'.join([picks, bans])
+        )
+
+    async def pick(self, author: discord.User, champ: str) -> bool:
         channel = author.dm_channel
 
         if champ in CHAMP_ALIAS_DICT:
@@ -86,16 +129,66 @@ class Draft:
 
         if champ not in CHAMP_LIST:
             await channel.send(champ + ' is not a valid champ.')
-            return
+            return False
 
         if author.id == self.captain1.id:
             captain = self.captain1
-            enemy_captain == self.captain2
+            enemy_captain = self.captain2
         else:
             captain = self.captain2
-            enemy_captain == self.captain1
+            enemy_captain = self.captain1
 
-    async def ban(self, author: discord.User, champ: str) -> None:
+        # checks for pickable champ
+        if champ in enemy_captain.bans:
+            await channel.send(
+                champ.capitalize() + ' has been banned by the enemy team.'
+            )
+            return False
+        elif champ in captain.picks:
+            await channel.send(
+                champ.capitalize() + ' has already been picked by your team.'
+            )
+            return False
+
+        if self.state == DraftState.FIRST_PICK:
+            if captain.picks[0]:
+                await channel.send(
+                    'Updated pick to ' + champ.capitalize()
+                )
+            captain.pick(champ, 0)
+            if enemy_captain.picks[0]:
+                both_picked = True
+        elif self.state == DraftState.SECOND_PICK:
+            if captain.picks[1]:
+                await channel.send(
+                    'Updated pick to ' + champ.capitalize()
+                )
+            captain.pick(champ, 1)
+            if enemy_captain.picks[1]:
+                both_picked = True
+        else:
+            if captain.picks[2]:
+                await channel.send(
+                    'Updated pick to ' + champ.capitalize()
+                )
+            captain.pick(champ, 2)
+            if enemy_captain.picks[2]:
+                both_picked = True
+
+        champ = champ.capitalize()
+
+        if both_picked:
+            self.update_table(captain, champ)
+            self.advance_state()
+            return True
+
+        self.update_table(captain, champ)
+        await clear_dm(captain.dm_channel)
+        await channel.send(embed = self.table)
+        await channel.send('Waiting for opposing captain to pick.')
+        return False
+
+    async def ban(self, author: discord.User, champ: str) -> bool:
         channel = author.dm_channel
 
         if champ in CHAMP_ALIAS_DICT:
@@ -103,11 +196,53 @@ class Draft:
 
         if champ not in CHAMP_LIST:
             await channel.send(champ + ' is not a valid champ.')
-            return
+            return False
 
         if author.id == self.captain1.id:
             captain = self.captain1
-            enemy_captain == self.captain2
+            enemy_captain = self.captain2
         else:
             captain = self.captain2
-            enemy_captain == self.captain1
+            enemy_captain = self.captain1
+
+        # checks for banable champ
+        if champ in enemy_captain.picks:
+            await channel.send(
+                champ.capitalize() + ' has already been picked by the enemy team.'
+            )
+            return False
+        elif champ in captain.bans:
+            await channel.send(
+                champ.capitalize() + ' has already been banned by your team.'
+            )
+            return False
+
+        if self.state == DraftState.FIRST_BAN:
+            if captain.bans[0]:
+                await channel.send(
+                    'Updated ban to ' + champ.capitalize()
+                )
+            captain.ban(champ, 0)
+            if enemy_captain.bans[0]:
+                both_banned = True
+        else:
+            if captain.bans[1]:
+                await channel.send(
+                    'Updated ban to ' + champ.capitalize()
+                )
+            captain.ban(champ, 1)
+            if enemy_captain.bans[1]:
+                both_banned = True
+
+        champ = champ.capitalize()
+
+        if both_banned:
+            self.update_table(captain, champ)
+            self.advance_state()
+            return True
+
+        self.update_table(captain, champ)
+        await clear_dm(captain.dm_channel)
+        await channel.send(embed = self.table)
+        await channel.send('Waiting for opposing captain to ban.')
+        return False
