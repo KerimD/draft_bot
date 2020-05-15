@@ -8,8 +8,8 @@ SESSIONS = {}
 CAPTAINS = {}
 
 DRAFT_TO_MISC = {
-    709638103060447314: 710901389232046080,
-    710076783227174973: 710901476171579404
+    709879064596447264: 709879167419678730,
+    709638103060447314: 710901389232046080
 }
 
 async def help_msg(args, author, client):
@@ -267,4 +267,10 @@ async def init_ihl_draft(message, client):
 async def msg_ihl_bot(draft, client):
     channel = client.get_channel(draft.ihl_channel_id)
 
-    await channel.send(draft.id)
+    message = draft.id + \
+              ' '.join(draft.captain1.bans) + \
+              ' '.join(draft.captain2.bans) + \
+              ' '.join(draft.captain1.picks) + \
+              ' '.join(draft.captain2.picks)
+
+    await channel.send(message)
