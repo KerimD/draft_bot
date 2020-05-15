@@ -7,7 +7,6 @@ from helper import init_draft, format_tables, clear_dms, update_draft_channel
 SESSIONS = {}
 CAPTAINS = {}
 
-DRAFT_GUILD_ID = [709638020525064252]
 DRAFT_TO_MISC = {
     709638103060447314: 710901389232046080,
     710076783227174973: 710901476171579404
@@ -49,11 +48,11 @@ async def start_draft(args, author, client):
 async def join_draft(args, author, client):
     channel = author.dm_channel
 
-    # if author.id in CAPTAINS:
-    #     await channel.send(
-    #         'You are already in a draft, exit with `!exit`'
-    #     )
-    #     return
+    if author.id in CAPTAINS:
+        await channel.send(
+            'You are already in a draft, exit with `!exit`'
+        )
+        return
 
     if len(args) < 1:
         await channel.send(

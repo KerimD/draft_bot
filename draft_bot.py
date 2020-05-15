@@ -7,7 +7,7 @@ client = discord.Client()
 # Global Variables
 COMMAND_PREFIX = '!'
 DRAFT_CHANNEL_IDS = [709638103060447314, 710076783227174973]
-IHL_BOT_ID = 142008529417535490
+IHL_BOT_IDS = [142008529417535490]
 COMMANDS = {
     "!help": help_msg,
     "!draft": start_draft,
@@ -39,7 +39,7 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    if message.author.id == IHL_BOT_ID:
+    if message.author.id in IHL_BOT_IDS:
         await init_ihl_draft(message, client)
         return
 
@@ -71,7 +71,7 @@ async def on_member_join(member):
     )
 
 async def is_valid_message(message) -> bool:
-    if message.author == client.user:
+    if message.author.bot:
         return False
 
     if not message.content:
