@@ -2,7 +2,7 @@ import uuid
 import enum
 import discord
 
-from helper import clear_dm
+from helper import clear_dm, format_tables
 
 class Captain:
     def __init__(self, user: discord.User):
@@ -53,7 +53,7 @@ class Draft:
         unique_ids.append(self.id)
 
         self.state = DraftState.FIRST_BAN
-        self.message = None
+        self.messages = []
 
         # init captains
         self.captain1 = Captain(user1)
@@ -103,14 +103,14 @@ class Draft:
 
         for pick in captain.picks:
             if pick:
-                picks.append(pick)
+                picks.append(pick.capitalize())
             else:
                 picks.append('----')
         picks = '\n'.join(picks)
 
         for ban in captain.bans:
             if ban:
-                bans.append(ban)
+                bans.append(ban.capitalize())
             else:
                 bans.append('----')
         bans = '\n'.join(bans)
@@ -134,9 +134,11 @@ class Draft:
         if author.id == self.captain1.id:
             captain = self.captain1
             enemy_captain = self.captain2
+            captain_num = 0
         else:
             captain = self.captain2
             enemy_captain = self.captain1
+            captain_num = 1
 
         # checks for pickable champ
         if champ in enemy_captain.bans:
@@ -149,6 +151,8 @@ class Draft:
                 champ.capitalize() + ' has already been picked by your team.'
             )
             return False
+
+        both_picked = False
 
         if self.state == DraftState.FIRST_PICK:
             if captain.picks[0]:
@@ -184,7 +188,8 @@ class Draft:
 
         self.update_table(captain, champ)
         await clear_dm(captain.dm_channel)
-        await channel.send(embed = self.table)
+        tables = format_tables(self.table)
+        await channel.send(embed = tables[captain_num])
         await channel.send('Waiting for opposing captain to pick.')
         return False
 
@@ -201,9 +206,11 @@ class Draft:
         if author.id == self.captain1.id:
             captain = self.captain1
             enemy_captain = self.captain2
+            captain_num = 0
         else:
             captain = self.captain2
             enemy_captain = self.captain1
+            captain_num = 1
 
         # checks for banable champ
         if champ in enemy_captain.picks:
@@ -216,6 +223,8 @@ class Draft:
                 champ.capitalize() + ' has already been banned by your team.'
             )
             return False
+
+        both_banned = False
 
         if self.state == DraftState.FIRST_BAN:
             if captain.bans[0]:
@@ -243,6 +252,7 @@ class Draft:
 
         self.update_table(captain, champ)
         await clear_dm(captain.dm_channel)
-        await channel.send(embed = self.table)
+        tables = format_tables(self.table)
+        await channel.send(embed = tables[captain_num])
         await channel.send('Waiting for opposing captain to ban.')
         return False

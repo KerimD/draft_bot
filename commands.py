@@ -132,7 +132,7 @@ async def pick_champ(args, author, client):
     await update_draft_channel(draft, client)
 
     if draft.state == DraftState.COMPLETE:
-        exit_draft([], author, client)
+        await exit_draft([], author, client)
     else:
         if draft.state == DraftState.SECOND_PICK:
             await draft.captain1.dm_channel.send(

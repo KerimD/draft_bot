@@ -4,7 +4,10 @@ DRAFT_CHANNEL_IDS = [709638103060447314, 710076783227174973]
 BOT_ID = 709635454252613643
 
 def format_tables(table):
-    tables = [discord.Embed(color = 16753152), discord.Embed(color = 16753152)]
+    tables = [
+        discord.Embed(color = table.color),
+        discord.Embed(color = table.color)
+    ]
 
     for i in range(len(table.fields)):
         for T in tables:
@@ -38,10 +41,16 @@ async def init_draft(draft, client):
     tables = format_tables(draft.table)
 
     await draft.captain1.dm_channel.send(embed = tables[0])
+    await draft.captain1.dm_channel.send(
+        'Ban phase, please **ban** with `!ban [champ]`'
+    )
     await draft.captain2.dm_channel.send(embed = tables[1])
+    await draft.captain2.dm_channel.send(
+        'Ban phase, please **ban** with `!ban [champ]`'
+    )
 
     for channel in get_channels(client):
-        draft.message = await channel.send(embed = draft.table)
+        draft.messages.append((await channel.send(embed = draft.table)).id)
 
 def get_channels(client):
     channels = []
@@ -53,11 +62,12 @@ def get_channels(client):
 
 async def update_draft_channel(draft, client):
     for channel_id in DRAFT_CHANNEL_IDS:
-        async for message in client.get_channel(channel_id).history:
+        async for message in client.get_channel(channel_id).history():
             if message.embeds:
-                if message.id == draft.message.id:
-                    await message.edit(embed = draft.table)
-                    break
+                for message_id in draft.messages:
+                    if message.id == message_id:
+                        await message.edit(embed = draft.table)
+                        break
 
 async def clear_dms(draft):
     count = 0
