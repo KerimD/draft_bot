@@ -1,13 +1,14 @@
 import discord
 
 from commands import *
+from ihl import init_ihl_draft
 
 client = discord.Client()
 
 # Global Variables
 COMMAND_PREFIX = '!'
 DRAFT_CHANNEL_IDS = [709638103060447314, 710076783227174973]
-BOT_ID = 709635454252613643
+IHL_BOT_ID = 142008529417535490
 COMMANDS = {
     "!help": help_msg,
     "!draft": start_draft,
@@ -19,6 +20,7 @@ COMMANDS = {
 
 @client.event
 async def on_ready():
+    print(client.user.id, client.user.id)
 
     # clean up draft channels
     messages = []
@@ -27,7 +29,7 @@ async def on_ready():
         channel = client.get_channel(channel_id)
 
         async for message in channel.history():
-            if message.author.id == BOT_ID:
+            if message.author.id == client.user.id:
                 if message.embeds:
                     if message.embeds[0].color.value == 16753152:
                         messages.append(message)
@@ -40,6 +42,9 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
+    if message.author.id == IHL_BOT_ID:
+        await init_ihl_draft(message, client)
+
     if not await is_valid_message(message):
         return
 

@@ -54,6 +54,7 @@ class Draft:
 
         self.state = DraftState.FIRST_BAN
         self.messages = []
+        self.ihl = False
 
         # init captains
         self.captain1 = Captain(user1)
