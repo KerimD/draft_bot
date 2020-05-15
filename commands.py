@@ -8,6 +8,10 @@ SESSIONS = {}
 CAPTAINS = {}
 
 DRAFT_GUILD_ID = [709638020525064252]
+DRAFT_TO_MISC = {
+    709638103060447314: 710901389232046080,
+    710076783227174973: 710901476171579404
+}
 
 async def help_msg(args, author, client):
     await author.dm_channel.send(
@@ -132,6 +136,7 @@ async def pick_champ(args, author, client):
     await update_draft_channel(draft, client)
 
     if draft.state == DraftState.COMPLETE:
+        await msg_ihl_bot(draft, client)
         await exit_draft([], author, client)
     else:
         if draft.state == DraftState.SECOND_PICK:
@@ -234,3 +239,33 @@ async def exit_draft(args, author, client):
         del CAPTAINS[draft.captain2.id]
 
     del SESSIONS[draft_id]
+
+async def init_ihl_draft(message, client):
+    if message.channel.id not in DRAFT_TO_MISC:
+        return
+
+    content = message.content.split()
+    guild = message.guild
+
+    captain1 = guild.get_member(int(content[1]))
+    captain2 = guild.get_member(int(content[2]))
+
+    if not captain1.dm_channel:
+        await captain1.create_dm()
+    if not captain2.dm_channel:
+        await captain2.create_dm()
+
+    draft = Draft(captain1, captain2)
+    draft.id = content[0]
+    draft.ihl_channel_id = DRAFT_TO_MISC[message.channel.id]
+
+    CAPTAINS[int(content[1])] = draft.id
+    CAPTAINS[int(content[2])] = draft.id
+    SESSIONS[draft.id] = draft
+
+    await init_draft(draft, client)
+
+async def msg_ihl_bot(draft, client):
+    channel = client.get_channel(draft.ihl_channel_id)
+
+    await channel.send(draft.id)

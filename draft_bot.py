@@ -1,7 +1,6 @@
 import discord
 
 from commands import *
-from ihl import init_ihl_draft
 
 client = discord.Client()
 
@@ -20,8 +19,6 @@ COMMANDS = {
 
 @client.event
 async def on_ready():
-    print(client.user.id, client.user.id)
-
     # clean up draft channels
     messages = []
 
@@ -44,6 +41,7 @@ async def on_ready():
 async def on_message(message):
     if message.author.id == IHL_BOT_ID:
         await init_ihl_draft(message, client)
+        return
 
     if not await is_valid_message(message):
         return
@@ -68,7 +66,9 @@ async def on_member_join(member):
         return
 
     await member.create_dm()
-    await member.dm_channel.send('Welcome, to learn how to use this bot try `!help`')
+    await member.dm_channel.send(
+        'Welcome, to learn how to use this bot try `!help`'
+    )
 
 async def is_valid_message(message) -> bool:
     if message.author == client.user:

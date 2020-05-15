@@ -30,7 +30,9 @@ CHAMP_ALIAS_DICT = {
 	"luke": "freya", "dest": "destiny", "pol": "poloma",
 	"lucy": "lucie", "jam": "jamila", "jum": "jumong",
 	"var": "varesh", "uni": "jumong", "frog": "croak",
-    "polo": "poloma"
+    "polo": "poloma", "catchy": "thorn", "tomiy": "rook",
+    "LDK": "bakko", "chisaku": "jade", "peon": "poloma",
+    "averse": "taya", "arkdn": "rook", "mGalante": "rook"
 }
 
 unique_ids = []
@@ -54,7 +56,7 @@ class Draft:
 
         self.state = DraftState.FIRST_BAN
         self.messages = []
-        self.ihl = False
+        self.ihl_channel_id = 710901389232046080
 
         # init captains
         self.captain1 = Captain(user1)
