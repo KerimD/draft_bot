@@ -56,6 +56,7 @@ class Draft:
 
         self.state = DraftState.FIRST_BAN
         self.messages = []
+        self.ihl = False
         self.ihl_channel_id = 710901389232046080
 
         # init captains

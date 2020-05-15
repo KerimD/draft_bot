@@ -7,6 +7,7 @@ from helper import init_draft, format_tables, clear_dms, update_draft_channel
 SESSIONS = {}
 CAPTAINS = {}
 
+NAIL_CHANNEL_ID = 705836678891307089
 DRAFT_TO_MISC = {
     709879064596447264: 709879167419678730,
     709638103060447314: 710901389232046080,
@@ -257,6 +258,7 @@ async def init_ihl_draft(message, client):
 
     draft = Draft(captain1, captain2)
     draft.id = content[0]
+    draft.ihl = True
     draft.ihl_channel_id = DRAFT_TO_MISC[message.channel.id]
 
     CAPTAINS[int(content[1])] = draft.id
@@ -266,12 +268,15 @@ async def init_ihl_draft(message, client):
     await init_draft(draft, client)
 
 async def msg_ihl_bot(draft, client):
-    channel = client.get_channel(draft.ihl_channel_id)
+    if draft.ihl:
+        channel = client.get_channel(draft.ihl_channel_id)
+    else:
+        channel = client.get_channel(NAIL_CHANNEL_ID)
 
-    message = draft.id + \
-              ' '.join(draft.captain1.bans) + \
-              ' '.join(draft.captain2.bans) + \
-              ' '.join(draft.captain1.picks) + \
-              ' '.join(draft.captain2.picks)
+    message = [draft.id] + \
+        draft.captain1.bans + \
+        draft.captain2.bans + \
+        draft.captain1.picks + \
+        draft.captain2.picks
 
-    await channel.send(message)
+    await channel.send(' '.join(message))
