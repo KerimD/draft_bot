@@ -19,11 +19,17 @@ COMMANDS = {
 
 @client.event
 async def on_ready():
+    count = 0
+
     # clean up draft channels
     for channel_id in DRAFT_CHANNEL_IDS:
         channel = client.get_channel(channel_id)
 
         async for message in channel.history():
+            if count > 30:
+                break
+            count += 1
+
             if message.author.id == client.user.id:
                 if message.embeds:
                     if message.embeds[0].color.value == 16753152:
