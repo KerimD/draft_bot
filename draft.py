@@ -58,6 +58,7 @@ class Draft:
         self.messages = []
         self.ihl = False
         self.ihl_channel_id = 710901389232046080
+        self.banned_champs = []
 
         # init captains
         self.captain1 = Captain(user1)
@@ -144,6 +145,14 @@ class Draft:
             enemy_captain = self.captain1
             captain_num = 1
 
+        # unique IHL champ bans
+        if self.banned_champs:
+            if champ in self.banned_champs:
+                await channel.send(
+                    champ.capitalize() + ' is unpickable by NAIL.'
+                )
+                return False
+
         # checks for pickable champ
         if champ in enemy_captain.bans:
             await channel.send(
@@ -215,6 +224,14 @@ class Draft:
             captain = self.captain2
             enemy_captain = self.captain1
             captain_num = 1
+
+        # unique IHL champ bans
+        if self.banned_champs:
+            if champ in self.banned_champs:
+                await channel.send(
+                    champ.capitalize() + ' is unpickable by NAIL already.'
+                )
+                return False
 
         # checks for banable champ
         if champ in enemy_captain.picks:

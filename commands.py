@@ -262,6 +262,8 @@ async def init_ihl_draft(message, client):
     draft.id = content[0]
     draft.ihl = True
     draft.ihl_channel_id = DRAFT_TO_MISC[message.channel.id]
+    for champ in content[3:]:
+        self.banned_champs.append(champ)
 
     CAPTAINS[int(content[1])] = draft.id
     CAPTAINS[int(content[2])] = draft.id
