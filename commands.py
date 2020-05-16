@@ -245,6 +245,8 @@ async def init_ihl_draft(message, client):
     if message.channel.id not in DRAFT_TO_MISC:
         return
 
+    await message.delete()
+
     content = message.content.split()
     guild = message.guild
 
