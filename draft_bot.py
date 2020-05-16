@@ -20,8 +20,6 @@ COMMANDS = {
 @client.event
 async def on_ready():
     # clean up draft channels
-    messages = []
-
     for channel_id in DRAFT_CHANNEL_IDS:
         channel = client.get_channel(channel_id)
 
@@ -29,11 +27,9 @@ async def on_ready():
             if message.author.id == client.user.id:
                 if message.embeds:
                     if message.embeds[0].color.value == 16753152:
-                        messages.append(message)
+                        await message.delete()
             else:
-                messages.append(message)
-
-        await channel.delete_messages(messages)
+                await message.delete()
 
     print('Bot Online')
 
