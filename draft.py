@@ -200,7 +200,7 @@ class Draft:
             return True
 
         self.update_table(captain, champ)
-        await clear_dm(captain.dm_channel)
+        # await clear_dm(captain.dm_channel)
         tables = format_tables(self.table)
         await channel.send(embed = tables[captain_num])
         await channel.send('Waiting for opposing captain to pick.')
@@ -272,7 +272,7 @@ class Draft:
             return True
 
         self.update_table(captain, champ)
-        await clear_dm(captain.dm_channel)
+        # await clear_dm(captain.dm_channel)
         tables = format_tables(self.table)
         await channel.send(embed = tables[captain_num])
         await channel.send('Waiting for opposing captain to ban.')

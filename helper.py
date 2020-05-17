@@ -69,6 +69,16 @@ async def update_draft_channel(draft, client):
                         await message.edit(embed = draft.table)
                         break
 
+async def clear_draft_channel(messages, client):
+    for channel_id in DRAFT_CHANNEL_IDS:
+        async for message in client.get_channel(channel_id).history():
+            if message.embeds:
+                for message_id in messages:
+                    if message.id == message_id:
+                        if message.embeds[0].color.value == 16753152:
+                            await message.delete()
+                        break
+
 async def clear_dms(draft):
     count = 0
     async for message in draft.captain1.dm_channel.history():

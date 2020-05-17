@@ -1,7 +1,7 @@
 import discord
 
 from draft import Draft, DraftState
-from helper import init_draft, format_tables, clear_dms, update_draft_channel
+from helper import init_draft, format_tables, clear_dms, update_draft_channel, clear_draft_channel
 
 # Global Variables
 SESSIONS = {}
@@ -227,6 +227,7 @@ async def exit_draft(args, author, client):
     draft_id = SESSIONS[CAPTAINS[author.id]].id
 
     await clear_dms(draft)
+    await clear_draft_channel(draft.messages, client)
 
     if draft.captain1:
         await draft.captain1.dm_channel.send(
@@ -263,7 +264,7 @@ async def init_ihl_draft(message, client):
     draft.ihl = True
     draft.ihl_channel_id = DRAFT_TO_MISC[message.channel.id]
     for champ in content[3:]:
-        self.banned_champs.append(champ)
+        draft.banned_champs.append(champ.lower())
 
     CAPTAINS[int(content[1])] = draft.id
     CAPTAINS[int(content[2])] = draft.id
@@ -274,10 +275,12 @@ async def init_ihl_draft(message, client):
 async def msg_ihl_bot(draft, client):
     if draft.ihl:
         channel = client.get_channel(draft.ihl_channel_id)
+        draft_id = draft.id
     else:
         channel = client.get_channel(NAIL_CHANNEL_ID)
+        draft_id = '0'
 
-    message = [draft.id] + \
+    message = [draft_id] + \
         draft.captain1.bans + \
         draft.captain2.bans + \
         draft.captain1.picks + \
