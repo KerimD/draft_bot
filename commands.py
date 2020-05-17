@@ -286,4 +286,4 @@ async def msg_ihl_bot(draft, client):
         draft.captain1.picks + \
         draft.captain2.picks
 
-    await channel.send(' '.join(message))
+    await channel.send(','.join(message))
