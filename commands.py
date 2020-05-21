@@ -248,7 +248,7 @@ async def init_ihl_draft(message, client):
 
     await message.delete()
 
-    content = message.content.split()
+    content = message.content.split(',')
     guild = message.guild
 
     captain1 = guild.get_member(int(content[1]))
