@@ -86,17 +86,18 @@ async def clear_draft_channel(messages, client):
 
 async def clear_dms(draft):
     count = 0
-    async for message in draft.captain1.dm_channel.history():
-        if count > 20:
-            break
-        count += 1
+    if draft.captain1:
+        async for message in draft.captain1.dm_channel.history():
+            if count > 20:
+                break
+            count += 1
 
-        if message.author.id == BOT_ID:
-            if message.embeds:
-                if message.embeds[0].color.value == 16753152:
+            if message.author.id == BOT_ID:
+                if message.embeds:
+                    if message.embeds[0].color.value == 16753152:
+                        await message.delete()
+                else:
                     await message.delete()
-            else:
-                await message.delete()
 
     count = 0
     if draft.captain2:

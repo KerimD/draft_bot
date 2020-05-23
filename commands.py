@@ -224,7 +224,7 @@ async def exit_draft(args, author, client):
         return
 
     draft = SESSIONS[CAPTAINS[author.id]]
-    draft_id = SESSIONS[CAPTAINS[author.id]].id
+    draft_id = draft.id
 
     await clear_dms(draft)
     await clear_draft_channel(draft.messages, client)
