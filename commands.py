@@ -259,6 +259,16 @@ async def init_ihl_draft(message, client):
     if not captain2.dm_channel:
         await captain2.create_dm()
 
+    # check if already in a draft
+    if captain1.id in CAPTAINS or captain2.id in CAPTAINS:
+        await captain1.dm_channel.send(
+            'Unable to create draft because one of the captains is already in a draft, exit with `!exit`'
+        )
+        await captain2.dm_channel.send(
+            'Unable to create draft because one of the captains is already in a draft, exit with `!exit`'
+        )
+        return
+
     draft = Draft(captain1, captain2)
     draft.id = content[0]
     draft.ihl = True
